@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/style.css">
+    <title>Chatbot</title>
+</head>
+<body>
+    <div id="box">
+        <div class="img">
+        <div class="box_left">
+            <p class="uname">ジャスミン</p>
+            <p class="time"></p>
+            <p id="message_boxwhite"></p>
+        </div>
+        </div>
+        <div class="box_right">
+            <p class="time"></p>
+            <p id="message_boxgreen"></p>
+        </div>
+       
+    </div>
+
+    <div class="input-group chat-input">
+        <input type="text" id="inputMessage" class="form-control" placeholder="メッセージを入力してください">
+
+        <div class="input-group-append">
+            <button id="sendBtn" class="btn btn-primary" type="button">送信</button>
+        </div>
+    </div>
+
+    <!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+    
+    <script>
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const ref = firebase.database().ref(); //.ref()=ユニークキーを自動で振る
+
+   //日付取得！！  
+let now = new Date(); 
+let m = ("0"+(now.getMonth() + 1)).slice(-2);    //月（2桁表示）  
+let d =  ("0"+now.getDate()).slice(-2);  //日（2桁表示）  
+let h = ("0"+now.getHours()).slice(-2);          //時（2桁表示）  
+let mi = ("0"+now.getMinutes()).slice(-2);        //分（2桁表示）  //日時表示文字列の作成(その他の時間の表示に合わせる)  
+let t = m + "-" + d + " "+ h + ":" + mi ;
+
+//関数定義
+    function send(){
+        const text = $("#inputMessage").val();
+        const time = t;
+        const da = $(".img").val();
+        const msg = {
+            text:text,
+            time:time,
+            icon:da
+        }
+        ref.push(msg); 
+        inputMessage.value = '';
+        // 入力値が空かチェックする
+        if (text == '') {
+        // 入力値が空の場合、処理を中断する
+        return;
+        }
+        $('#box').animate({scrollTop: $('#box')[0]}, 'fast');               
+    }; 
+  
+    
+
+// データ受信
+ref.on("child_added",function(data){
+    let v = data.val();
+    let k = data.key;
+    let str = '<p>'+v.text+'</p>';
+    let time = '<p>'+v.time+'</p>';
+    $("#message_boxgreen").append(str);
+    $("#message_boxgreen").append(time);
+});
+
+    // Enterキーによりsend関数を実行
+    $("#inputMessage").on("keydown",function(e){
+        if(e.keyCode == 13){
+            send();
+        }
+    });
+    
+    </script>
+</body>
+</html>
